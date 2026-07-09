@@ -37,19 +37,13 @@ export function ArtikelCard({
 
   const [translate, setTranslate] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [dragging, setDragging] = useState<boolean>(false);
-  const [borderVisible, setBorderVisible] = useState<boolean>(false);
 
   const dragOrigin = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
-    if (feedbackState === "idle") {
-      setBorderVisible(false);
-      return;
+    if (feedbackState !== "idle") {
+      setTranslate({ x: 0, y: 0 });
     }
-    setBorderVisible(true);
-    setTranslate({ x: 0, y: 0 });
-    const hideTimer = setTimeout(() => setBorderVisible(false), 600);
-    return () => clearTimeout(hideTimer);
   }, [feedbackState]);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>): void => {
@@ -83,12 +77,8 @@ export function ArtikelCard({
     const absY = Math.abs(y);
 
     if (absX > SWIPE_THRESHOLD && absX > absY) {
-      const direction: GermanArtikel = x > 0 ? "das" : "der";
-      const screenWidth = typeof window !== "undefined" ? window.innerWidth : 800;
-      setTranslate({ x: x > 0 ? screenWidth : -screenWidth, y });
-      onSwipe(direction);
+      onSwipe(x > 0 ? "das" : "der");
     } else if (y > SWIPE_THRESHOLD && absY > absX) {
-      setTranslate({ x, y: 600 });
       onSwipe("die");
     } else {
       setTranslate({ x: 0, y: 0 });
@@ -118,7 +108,7 @@ export function ArtikelCard({
         <div
           style={{
             ...styles.feedbackBorder,
-            opacity: borderVisible ? 1 : 0,
+            opacity: feedbackState !== "idle" ? 1 : 0,
             borderColor: isCorrect ? FEEDBACK_CORRECT : FEEDBACK_INCORRECT,
             transition: "opacity 600ms ease",
           }}

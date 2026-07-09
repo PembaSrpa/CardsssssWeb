@@ -83,7 +83,7 @@ export default function GermanGamePage(): React.JSX.Element {
       setIndex(nextIndex);
       setFeedback("idle");
       persistPosition(nextIndex, nextScore, nextStreak);
-    }, 500);
+    }, 1100);
   };
 
   const restart = (): void => {

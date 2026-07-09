@@ -98,7 +98,7 @@ export default function HomePage(): React.JSX.Element {
 
       <div style={styles.content}>
         <div style={styles.header}>
-          <span style={{ ...styles.title, color: colors.text }}>Cards</span>
+          <span style={{ ...styles.title, color: colors.text }}>Cardsssss</span>
           <div style={styles.headerControls}>
             <Pressable onPress={() => router.push("/creators")} ariaLabel="View creators">
               {({ pressed }) => (

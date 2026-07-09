@@ -1,0 +1,22 @@
+{
+  "level": "B2",
+  "kapitel": 9,
+  "modules": [
+    {
+      "id": "m1",
+      "title": "Wortschatz"
+    },
+    {
+      "id": "m2",
+      "title": "Grammatik"
+    },
+    {
+      "id": "m3",
+      "title": "Kommunikation"
+    },
+    {
+      "id": "m4",
+      "title": "Portraits"
+    }
+  ]
+}

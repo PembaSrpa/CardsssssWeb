@@ -42,12 +42,14 @@ export function ArtikelCard({
   const dragOrigin = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
-    if (feedbackState !== "idle") {
-      setBorderVisible(true);
-      const hideTimer = setTimeout(() => setBorderVisible(false), 600);
-      setTranslate({ x: 0, y: 0 });
-      return () => clearTimeout(hideTimer);
+    if (feedbackState === "idle") {
+      setBorderVisible(false);
+      return;
     }
+    setBorderVisible(true);
+    setTranslate({ x: 0, y: 0 });
+    const hideTimer = setTimeout(() => setBorderVisible(false), 600);
+    return () => clearTimeout(hideTimer);
   }, [feedbackState]);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>): void => {

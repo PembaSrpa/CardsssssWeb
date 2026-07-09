@@ -110,7 +110,7 @@ export default function GermanGamePage(): React.JSX.Element {
 
   return (
     <div style={{ ...styles.root, backgroundColor: colors.background }}>
-      <Scales variant="compact" edges={["left", "right"]} />
+      <Scales variant="large" edges={["left", "right", "bottom"]} />
       <div style={styles.content}>
         <NavBar title={level} right={<ThemeToggle />} />
 

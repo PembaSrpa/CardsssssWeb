@@ -214,7 +214,7 @@ function StatChip({
 
 const styles: Record<string, React.CSSProperties> = {
   root: { minHeight: "100vh" },
-  content: { maxWidth: 480, margin: "0 auto", paddingLeft: 32, paddingRight: 32, paddingTop: 56, paddingBottom: 40 },
+  content: { maxWidth: 480, margin: "0 auto", paddingLeft: 44, paddingRight: 44, paddingTop: 56, paddingBottom: 56 },
   statsRow: { display: "flex", flexDirection: "row", gap: 10, marginBottom: 28 },
   finishedBox: { display: "flex", flexDirection: "column", alignItems: "center", marginTop: 60 },
   finishedTitle: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.bold, fontSize: FONT_SIZES.xl },

@@ -24,6 +24,8 @@ function stripeBackground(color: string, orientation: "vertical" | "horizontal")
 export function Scales({ variant = "compact", edges = ["left", "right"] }: ScalesProps = {}): React.JSX.Element {
   const { colors } = useTheme();
   const thickness = WIDTH_BY_VARIANT[variant];
+  const hasBottom = edges.includes("bottom");
+  const verticalBottomInset = hasBottom ? thickness : 0;
 
   return (
     <>
@@ -33,7 +35,7 @@ export function Scales({ variant = "compact", edges = ["left", "right"] }: Scale
             position: "fixed",
             left: 0,
             top: 0,
-            bottom: 0,
+            bottom: verticalBottomInset,
             width: thickness,
             zIndex: 10,
             pointerEvents: "none",
@@ -48,7 +50,7 @@ export function Scales({ variant = "compact", edges = ["left", "right"] }: Scale
             position: "fixed",
             right: 0,
             top: 0,
-            bottom: 0,
+            bottom: verticalBottomInset,
             width: thickness,
             zIndex: 10,
             pointerEvents: "none",
@@ -57,7 +59,7 @@ export function Scales({ variant = "compact", edges = ["left", "right"] }: Scale
           }}
         />
       )}
-      {edges.includes("bottom") && (
+      {hasBottom && (
         <div
           style={{
             position: "fixed",

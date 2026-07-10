@@ -17,7 +17,7 @@ interface Creator {
 
 const CREATORS: Creator[] = [
   { name: "Pemba", nickname: "arttfolio", url: "https://artt-folio.vercel.app" },
-  { name: "Pranay", nickname: "frankeinstein", url: "https://github.com/Frankenstein489" },
+  { name: "Pranay", nickname: "frankeinstein", url: "https://portfolio-olive-nine-lap0ra8v5x.vercel.app/" },
 ];
 
 interface OtherProject {

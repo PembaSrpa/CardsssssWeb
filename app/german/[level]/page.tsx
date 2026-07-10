@@ -7,6 +7,7 @@ import { NavBar } from "../../../components/NavBar";
 import { Scales } from "../../../components/Scales";
 import { ThemeToggle } from "../../../components/ThemeToggle";
 import { Pressable } from "../../../components/Pressable";
+import { StatChip } from "../../../components/StatChip";
 import { ArtikelCard, FeedbackState } from "../../../components/ArtikelCard";
 import { GermanArtikel, GermanWord, getGermanLevelWords, shuffleGermanWords } from "../../../hooks/useGermanData";
 import { useProgress } from "../../../hooks/useProgress";
@@ -115,9 +116,9 @@ export default function GermanGamePage(): React.JSX.Element {
         <NavBar title={level} right={<ThemeToggle />} />
 
         <div style={styles.statsRow}>
-          <StatChip label="SCORE" value={`${score}`} colors={colors} />
-          <StatChip label="STREAK" value={`${streak}`} colors={colors} />
-          <StatChip label="CARD" value={`${Math.min(index + 1, words.length)}/${words.length}`} colors={colors} />
+          <StatChip label="SCORE" value={`${score}`} />
+          <StatChip label="STREAK" value={`${streak}`} />
+          <StatChip label="CARD" value={`${Math.min(index + 1, words.length)}/${words.length}`} />
         </div>
 
         {isFinished ? (
@@ -173,41 +174,6 @@ export default function GermanGamePage(): React.JSX.Element {
           )
         )}
       </div>
-    </div>
-  );
-}
-
-function StatChip({
-  label,
-  value,
-  colors,
-}: {
-  label: string;
-  value: string;
-  colors: { border: string; backgroundAlt: string; textMuted: string; text: string };
-}): React.JSX.Element {
-  return (
-    <div
-      style={{
-        borderWidth: 1,
-        borderStyle: "solid",
-        borderColor: colors.border,
-        backgroundColor: colors.backgroundAlt,
-        borderRadius: 10,
-        paddingTop: 8,
-        paddingBottom: 8,
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <span style={{ fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.medium, fontSize: FONT_SIZES.xs, color: colors.textMuted, letterSpacing: 1 }}>
-        {label}
-      </span>
-      <span style={{ fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.bold, fontSize: FONT_SIZES.md, color: colors.text, marginTop: 2 }}>
-        {value}
-      </span>
     </div>
   );
 }

@@ -1,21 +1,24 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import * as Storage from "../../../../../../lib/storage";
 import { useTheme } from "../../../../../../theme/ThemeContext";
 import { FONT_FAMILY, FONT_SIZES, FONT_WEIGHTS } from "../../../../../../theme/typography";
 import { GlossarCard } from "../../../../../../components/GlossarCard";
 import { AppButton } from "../../../../../../components/AppButton";
+import { StatChip } from "../../../../../../components/StatChip";
 import { NavBar } from "../../../../../../components/NavBar";
 import { ThemeToggle } from "../../../../../../components/ThemeToggle";
 import { Scales } from "../../../../../../components/Scales";
+import { Pressable } from "../../../../../../components/Pressable";
 import { SwipeNav } from "../../../../../../components/SwipeNav";
 import { useGlossarB2Meta, useGlossarB2Module } from "../../../../../../hooks/useGlossarData";
 import { UI_STORAGE_KEYS, glossarListIndexKey } from "../../../../../../store/uiStore";
 
 export default function GlossarB2FlashcardsPage(): React.JSX.Element {
   const { colors } = useTheme();
+  const router = useRouter();
   const params = useParams<{ kapitel: string; module: string }>();
   const searchParams = useSearchParams();
   const kapitel = params.kapitel ? parseInt(params.kapitel, 10) : 1;
@@ -31,8 +34,8 @@ export default function GlossarB2FlashcardsPage(): React.JSX.Element {
   const [flipped, setFlipped] = useState<boolean>(false);
 
   useEffect(() => {
-    if (words.length > 0 && index > words.length - 1) {
-      setIndex(words.length - 1);
+    if (words.length > 0 && index > words.length) {
+      setIndex(words.length);
     }
   }, [words.length, index]);
 
@@ -44,16 +47,22 @@ export default function GlossarB2FlashcardsPage(): React.JSX.Element {
     Storage.setItem(UI_STORAGE_KEYS.LAST_GLOSSAR_INDEX, String(index));
   }, [kapitel, moduleId, index]);
 
+  const isFinished = words.length > 0 && index >= words.length;
   const currentWord = words[index];
 
   const goNext = (): void => {
     setFlipped(false);
-    setIndex((prev) => Math.min(prev + 1, words.length - 1));
+    setIndex((prev) => Math.min(prev + 1, words.length));
   };
 
   const goPrev = (): void => {
     setFlipped(false);
     setIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const reviewAgain = (): void => {
+    setFlipped(false);
+    setIndex(0);
   };
 
   if (isLoading) {
@@ -70,12 +79,53 @@ export default function GlossarB2FlashcardsPage(): React.JSX.Element {
       <div style={styles.inner}>
         <NavBar title={title} right={<ThemeToggle />} />
 
-        {currentWord ? (
+        {words.length === 0 ? (
+          <span style={{ ...styles.empty, color: colors.textMuted }}>no cards found</span>
+        ) : isFinished ? (
+          <div style={styles.finishedBox}>
+            <span style={{ ...styles.finishedTitle, color: colors.text }}>Module complete</span>
+            <span style={{ ...styles.finishedScore, color: colors.textMuted }}>
+              {words.length} / {words.length} reviewed
+            </span>
+            <div style={styles.finishedActions}>
+              <Pressable
+                onPress={reviewAgain}
+                style={({ pressed }) => ({
+                  borderWidth: 1.5,
+                  borderStyle: "solid",
+                  borderColor: colors.accent,
+                  borderRadius: 8,
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  paddingLeft: 20,
+                  paddingRight: 20,
+                  opacity: pressed ? 0.7 : 1,
+                })}
+              >
+                <span style={{ ...styles.finishedBtnLabel, color: colors.accent }}>Review again</span>
+              </Pressable>
+              <Pressable
+                onPress={() => router.push(`/glossar/b2/${kapitel}/${moduleId}`)}
+                style={({ pressed }) => ({
+                  borderWidth: 1.5,
+                  borderStyle: "solid",
+                  borderColor: colors.border,
+                  borderRadius: 8,
+                  paddingTop: 10,
+                  paddingBottom: 10,
+                  paddingLeft: 20,
+                  paddingRight: 20,
+                  opacity: pressed ? 0.7 : 1,
+                })}
+              >
+                <span style={{ ...styles.finishedBtnLabel, color: colors.text }}>Back to list</span>
+              </Pressable>
+            </div>
+          </div>
+        ) : (
           <>
-            <div style={styles.navRow}>
-              <span style={{ ...styles.progressLabel, color: colors.textMuted }}>
-                {index + 1} / {words.length}
-              </span>
+            <div style={styles.statsRow}>
+              <StatChip label="CARD" value={`${index + 1}/${words.length}`} />
             </div>
 
             <div style={styles.cardArea}>
@@ -86,16 +136,9 @@ export default function GlossarB2FlashcardsPage(): React.JSX.Element {
 
             <div style={styles.actionRow}>
               <AppButton label="&larr; prev" onPress={goPrev} disabled={index === 0} style={styles.actionButton} />
-              <AppButton
-                label="next &rarr;"
-                onPress={goNext}
-                disabled={index === words.length - 1}
-                style={styles.actionButton}
-              />
+              <AppButton label="next &rarr;" onPress={goNext} style={styles.actionButton} />
             </div>
           </>
-        ) : (
-          <span style={{ ...styles.empty, color: colors.textMuted }}>no cards found</span>
         )}
       </div>
     </div>
@@ -116,8 +159,7 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: "100vh",
   },
   loading: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.regular, fontSize: FONT_SIZES.base, marginTop: 40, textAlign: "center", display: "block" },
-  navRow: { display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", marginBottom: 12 },
-  progressLabel: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.regular, fontSize: FONT_SIZES.sm, textAlign: "center" },
+  statsRow: { display: "flex", flexDirection: "row", gap: 10, marginBottom: 16, maxWidth: 200, marginLeft: "auto", marginRight: "auto", width: "100%" },
   cardArea: { flex: 1, display: "flex", justifyContent: "center", alignItems: "center" },
   actionRow: {
     display: "flex",
@@ -131,4 +173,9 @@ const styles: Record<string, React.CSSProperties> = {
   },
   actionButton: { flex: 1 },
   empty: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.regular, fontSize: FONT_SIZES.base, textAlign: "center", marginTop: 60, display: "block" },
+  finishedBox: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" },
+  finishedTitle: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.bold, fontSize: FONT_SIZES.xl },
+  finishedScore: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.regular, fontSize: FONT_SIZES.md, marginTop: 8 },
+  finishedActions: { display: "flex", flexDirection: "row", gap: 12, marginTop: 28 },
+  finishedBtnLabel: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.medium, fontSize: FONT_SIZES.sm },
 };

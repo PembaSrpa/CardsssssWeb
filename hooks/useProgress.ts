@@ -2,43 +2,29 @@
 
 import { useCallback, useEffect, useState } from "react";
 import * as Storage from "../lib/storage";
-import {
-  IELTSProgressMap,
-  IELTSWordStatus,
-  GermanProgressMap,
-  GermanWordScore,
-  STORAGE_KEYS,
-} from "../store/progressStore";
+import { GermanProgressMap, GermanWordScore, STORAGE_KEYS } from "../store/progressStore";
 
 export interface UseProgressResult {
   isLoading: boolean;
-  ieltsProgress: IELTSProgressMap;
   germanProgress: GermanProgressMap;
-  getWordStatus: (id: string) => IELTSWordStatus;
-  setWordStatus: (id: string, status: IELTSWordStatus) => Promise<void>;
   recordGermanAnswer: (id: string, wasCorrect: boolean) => Promise<void>;
   getGermanScore: (level: string, levelWordIds: string[]) => GermanWordScore;
 }
 
 export function useProgress(): UseProgressResult {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [ieltsProgress, setIeltsProgress] = useState<IELTSProgressMap>({});
   const [germanProgress, setGermanProgress] = useState<GermanProgressMap>({});
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadProgress(): Promise<void> {
-      const [ieltsRaw, germanRaw] = await Promise.all([
-        Storage.getItem(STORAGE_KEYS.IELTS_PROGRESS),
-        Storage.getItem(STORAGE_KEYS.GERMAN_PROGRESS),
-      ]);
+      const germanRaw = await Storage.getItem(STORAGE_KEYS.GERMAN_PROGRESS);
 
       if (!isMounted) {
         return;
       }
 
-      setIeltsProgress(ieltsRaw ? (JSON.parse(ieltsRaw) as IELTSProgressMap) : {});
       setGermanProgress(germanRaw ? (JSON.parse(germanRaw) as GermanProgressMap) : {});
       setIsLoading(false);
     }
@@ -49,22 +35,6 @@ export function useProgress(): UseProgressResult {
       isMounted = false;
     };
   }, []);
-
-  const getWordStatus = useCallback(
-    (id: string): IELTSWordStatus => {
-      return ieltsProgress[id] ?? "unseen";
-    },
-    [ieltsProgress]
-  );
-
-  const setWordStatus = useCallback(
-    async (id: string, status: IELTSWordStatus): Promise<void> => {
-      const updated: IELTSProgressMap = { ...ieltsProgress, [id]: status };
-      setIeltsProgress(updated);
-      await Storage.setItem(STORAGE_KEYS.IELTS_PROGRESS, JSON.stringify(updated));
-    },
-    [ieltsProgress]
-  );
 
   const recordGermanAnswer = useCallback(
     async (id: string, wasCorrect: boolean): Promise<void> => {
@@ -101,10 +71,7 @@ export function useProgress(): UseProgressResult {
 
   return {
     isLoading,
-    ieltsProgress,
     germanProgress,
-    getWordStatus,
-    setWordStatus,
     recordGermanAnswer,
     getGermanScore,
   };

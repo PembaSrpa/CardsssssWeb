@@ -6,6 +6,7 @@ import * as Storage from "../../../../../lib/storage";
 import { useTheme } from "../../../../../theme/ThemeContext";
 import { FONT_FAMILY, FONT_SIZES, FONT_WEIGHTS } from "../../../../../theme/typography";
 import { FlashCard } from "../../../../../components/FlashCard";
+import { SpeakingCard } from "../../../../../components/SpeakingCard";
 import { AppButton } from "../../../../../components/AppButton";
 import { StatChip } from "../../../../../components/StatChip";
 import { NavBar } from "../../../../../components/NavBar";
@@ -14,6 +15,7 @@ import { Scales } from "../../../../../components/Scales";
 import { Pressable } from "../../../../../components/Pressable";
 import { SwipeNav } from "../../../../../components/SwipeNav";
 import { useIELTSData } from "../../../../../hooks/useIELTSData";
+import { isIELTSSpeakingSection, useIELTSSpeakingData } from "../../../../../hooks/useIELTSSpeakingData";
 import { UI_STORAGE_KEYS, ieltsListIndexKey } from "../../../../../store/uiStore";
 
 export default function IELTSFlashcardsPage(): React.JSX.Element {
@@ -25,16 +27,22 @@ export default function IELTSFlashcardsPage(): React.JSX.Element {
   const section = params.section ?? "";
   const startParam = parseInt(searchParams.get("start") ?? "0", 10);
 
-  const { words, title, isLoading } = useIELTSData(section);
+  const isSpeaking = isIELTSSpeakingSection(section);
+  const vocabData = useIELTSData(section);
+  const speakingData = useIELTSSpeakingData(section);
+
+  const title = isSpeaking ? speakingData.title : vocabData.title;
+  const isLoading = isSpeaking ? speakingData.isLoading : vocabData.isLoading;
+  const itemCount = isSpeaking ? speakingData.questions.length : vocabData.words.length;
 
   const [index, setIndex] = useState<number>(Number.isFinite(startParam) ? startParam : 0);
   const [flipped, setFlipped] = useState<boolean>(false);
 
   useEffect(() => {
-    if (words.length > 0 && index > words.length) {
-      setIndex(words.length);
+    if (itemCount > 0 && index > itemCount) {
+      setIndex(itemCount);
     }
-  }, [words.length, index]);
+  }, [itemCount, index]);
 
   useEffect(() => {
     Storage.setItem(ieltsListIndexKey(section), String(index));
@@ -42,12 +50,13 @@ export default function IELTSFlashcardsPage(): React.JSX.Element {
     Storage.setItem(UI_STORAGE_KEYS.LAST_IELTS_INDEX, String(index));
   }, [section, index]);
 
-  const isFinished = words.length > 0 && index >= words.length;
-  const currentWord = words[index];
+  const isFinished = itemCount > 0 && index >= itemCount;
+  const currentWord = vocabData.words[index];
+  const currentQuestion = speakingData.questions[index];
 
   const goNext = (): void => {
     setFlipped(false);
-    setIndex((prev) => Math.min(prev + 1, words.length));
+    setIndex((prev) => Math.min(prev + 1, itemCount));
   };
 
   const goPrev = (): void => {
@@ -74,13 +83,13 @@ export default function IELTSFlashcardsPage(): React.JSX.Element {
       <div style={styles.inner}>
         <NavBar title={title || section} right={<ThemeToggle />} />
 
-        {words.length === 0 ? (
+        {itemCount === 0 ? (
           <span style={{ ...styles.empty, color: colors.textMuted }}>no cards found</span>
         ) : isFinished ? (
           <div style={styles.finishedBox}>
             <span style={{ ...styles.finishedTitle, color: colors.text }}>Section complete</span>
             <span style={{ ...styles.finishedScore, color: colors.textMuted }}>
-              {words.length} / {words.length} reviewed
+              {itemCount} / {itemCount} reviewed
             </span>
             <div style={styles.finishedActions}>
               <Pressable
@@ -120,12 +129,16 @@ export default function IELTSFlashcardsPage(): React.JSX.Element {
         ) : (
           <>
             <div style={styles.statsRow}>
-              <StatChip label="CARD" value={`${index + 1}/${words.length}`} />
+              <StatChip label="CARD" value={`${index + 1}/${itemCount}`} />
             </div>
 
             <div style={styles.cardArea}>
               <SwipeNav onSwipeLeft={goNext} onSwipeRight={goPrev}>
-                <FlashCard word={currentWord} flipped={flipped} onPress={() => setFlipped((f) => !f)} />
+                {isSpeaking ? (
+                  <SpeakingCard item={currentQuestion} flipped={flipped} onPress={() => setFlipped((f) => !f)} />
+                ) : (
+                  <FlashCard word={currentWord} flipped={flipped} onPress={() => setFlipped((f) => !f)} />
+                )}
               </SwipeNav>
             </div>
 

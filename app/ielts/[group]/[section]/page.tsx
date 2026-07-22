@@ -9,6 +9,7 @@ import { ThemeToggle } from "../../../../components/ThemeToggle";
 import { AppButton } from "../../../../components/AppButton";
 import { Pressable } from "../../../../components/Pressable";
 import { useIELTSData } from "../../../../hooks/useIELTSData";
+import { isIELTSSpeakingSection, useIELTSSpeakingData } from "../../../../hooks/useIELTSSpeakingData";
 import { ieltsListIndexKey } from "../../../../store/uiStore";
 import { useTheme } from "../../../../theme/ThemeContext";
 import { FONT_FAMILY, FONT_SIZES, FONT_WEIGHTS } from "../../../../theme/typography";
@@ -20,7 +21,22 @@ export default function IELTSVocabularyListPage(): React.JSX.Element {
   const group = params.group ?? "1";
   const section = params.section ?? "";
 
-  const { words, title, isLoading } = useIELTSData(section);
+  const isSpeaking = isIELTSSpeakingSection(section);
+  const vocabData = useIELTSData(section);
+  const speakingData = useIELTSSpeakingData(section);
+
+  const title = isSpeaking ? speakingData.title : vocabData.title;
+  const isLoading = isSpeaking ? speakingData.isLoading : vocabData.isLoading;
+  const itemCount = isSpeaking ? speakingData.questions.length : vocabData.words.length;
+
+  const rows = isSpeaking
+    ? speakingData.questions.map((q) => ({
+        id: q.id,
+        label: q.question,
+        badge: q.part === 2 ? "PART 2" : `PART ${q.part}`,
+      }))
+    : vocabData.words.map((w) => ({ id: w.id, label: w.word, badge: undefined as string | undefined }));
+
   const [resumeIndex, setResumeIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -47,7 +63,7 @@ export default function IELTSVocabularyListPage(): React.JSX.Element {
 
         {resumeIndex !== null ? (
           <AppButton
-            label={`Continue (${resumeIndex + 1} / ${words.length})`}
+            label={`Continue (${resumeIndex + 1} / ${itemCount})`}
             onPress={() => goToFlashcards(resumeIndex)}
             active
             style={styles.startButton}
@@ -57,8 +73,12 @@ export default function IELTSVocabularyListPage(): React.JSX.Element {
         )}
 
         <div style={styles.listContent}>
-          {!isLoading && words.length === 0 && <span style={{ ...styles.empty, color: colors.textMuted }}>no words found</span>}
-          {words.map((item, index) => (
+          {!isLoading && rows.length === 0 && (
+            <span style={{ ...styles.empty, color: colors.textMuted }}>
+              {isSpeaking ? "no questions found" : "no words found"}
+            </span>
+          )}
+          {rows.map((item, index) => (
             <Pressable
               key={item.id}
               onPress={() => goToFlashcards(index)}
@@ -73,17 +93,20 @@ export default function IELTSVocabularyListPage(): React.JSX.Element {
                 opacity: pressed ? 0.7 : 1,
               })}
             >
+              {!!item.badge && (
+                <span style={{ ...styles.badge, color: colors.textMuted, display: "block" }}>{item.badge}</span>
+              )}
               <span
                 style={{
                   ...styles.wordText,
                   color: colors.text,
-                  whiteSpace: "nowrap",
+                  whiteSpace: isSpeaking ? "normal" : "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   display: "block",
                 }}
               >
-                {item.word}
+                {item.label}
               </span>
             </Pressable>
           ))}
@@ -98,6 +121,7 @@ const styles: Record<string, React.CSSProperties> = {
   inner: { maxWidth: 640, margin: "0 auto", paddingLeft: 32, paddingRight: 32, paddingTop: 56 },
   startButton: { marginTop: 8, marginBottom: 16, paddingTop: 22, paddingBottom: 22 },
   listContent: { paddingBottom: 40 },
+  badge: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.medium, fontSize: FONT_SIZES.xs, letterSpacing: 1, marginBottom: 4 },
   wordText: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.bold, fontSize: FONT_SIZES.sm },
   empty: { fontFamily: FONT_FAMILY, fontWeight: FONT_WEIGHTS.regular, fontSize: FONT_SIZES.base, textAlign: "center", marginTop: 40, display: "block" },
 };

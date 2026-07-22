@@ -96,9 +96,9 @@ export default function HomePage(): React.JSX.Element {
     <div style={{ ...styles.root, backgroundColor: colors.background }}>
       <Scales variant="compact" edges={["left", "right"]} />
 
-      <div style={styles.content}>
+      <div className="home-content" style={styles.content}>
         <div style={styles.header}>
-          <span style={{ ...styles.title, color: colors.text }}>Cardsssss</span>
+          <span className="home-title" style={{ ...styles.title, color: colors.text }}>Cardsssss</span>
           <div style={styles.headerControls}>
             <Pressable onPress={() => router.push("/creators")} ariaLabel="View creators">
               {({ pressed }) => (
@@ -118,52 +118,91 @@ export default function HomePage(): React.JSX.Element {
           </div>
         </div>
 
-        <span style={{ ...styles.sectionLabel, color: colors.textMuted }}>MODULE 01</span>
-        <ModuleCard
-          title="IELTS"
-          description="flashcards"
-          onBrowse={() => router.push("/ielts")}
-          continueLabel={lastPos.ieltsSection ? `Continue ${lastPos.ieltsSection}` : null}
-          onContinue={() =>
-            router.push(
-              `/ielts/${getSectionGroupId(lastPos.ieltsSection ?? "")}/${lastPos.ieltsSection}/flashcards?start=${lastPos.ieltsIndex}`
-            )
-          }
-        />
+        <div className="home-modules">
+          <div className="home-module">
+            <span style={{ ...styles.sectionLabel, color: colors.textMuted }}>MODULE 01</span>
+            <ModuleCard
+              title="IELTS"
+              description="flashcards"
+              onBrowse={() => router.push("/ielts")}
+              continueLabel={lastPos.ieltsSection ? `Continue ${lastPos.ieltsSection}` : null}
+              onContinue={() =>
+                router.push(
+                  `/ielts/${getSectionGroupId(lastPos.ieltsSection ?? "")}/${lastPos.ieltsSection}/flashcards?start=${lastPos.ieltsIndex}`
+                )
+              }
+            />
+          </div>
 
-        <span style={{ ...styles.sectionLabel, color: colors.textMuted }}>MODULE 02</span>
-        <ModuleCard
-          title="Deutsch Artikel"
-          description="swipecards"
-          browseLabel="Choose"
-          onBrowse={() => router.push("/german")}
-          continueLabel={lastPos.germanLevel ? `Continue ${lastPos.germanLevel}` : null}
-          onContinue={() =>
-            router.push(
-              `/german/${lastPos.germanLevel}?resumeIndex=${lastPos.germanIndex}&resumeScore=${lastPos.germanScore}&resumeStreak=${lastPos.germanStreak}`
-            )
-          }
-        />
+          <div className="home-module">
+            <span style={{ ...styles.sectionLabel, color: colors.textMuted }}>MODULE 02</span>
+            <ModuleCard
+              title="Deutsch Artikel"
+              description="swipecards"
+              browseLabel="Choose"
+              onBrowse={() => router.push("/german")}
+              continueLabel={lastPos.germanLevel ? `Continue ${lastPos.germanLevel}` : null}
+              onContinue={() =>
+                router.push(
+                  `/german/${lastPos.germanLevel}?resumeIndex=${lastPos.germanIndex}&resumeScore=${lastPos.germanScore}&resumeStreak=${lastPos.germanStreak}`
+                )
+              }
+            />
+          </div>
 
-        <span style={{ ...styles.sectionLabel, color: colors.textMuted }}>MODULE 03</span>
-        <ModuleCard
-          title="Deutsch Glossaries"
-          description="flashcards"
-          onBrowse={() => router.push("/glossar")}
-          continueLabel={
-            lastPos.glossarLevel && lastPos.glossarKapitel
-              ? `Continue ${lastPos.glossarLevel} K${lastPos.glossarKapitel}`
-              : null
-          }
-          onContinue={() =>
-            router.push(
-              lastPos.glossarModule
-                ? `/glossar/b2/${lastPos.glossarKapitel}/${lastPos.glossarModule}/flashcards?start=${lastPos.glossarIndex}`
-                : `/glossar/${lastPos.glossarLevel}/${lastPos.glossarKapitel}/flashcards?start=${lastPos.glossarIndex}`
-            )
-          }
-        />
+          <div className="home-module">
+            <span style={{ ...styles.sectionLabel, color: colors.textMuted }}>MODULE 03</span>
+            <ModuleCard
+              title="Deutsch Glossaries"
+              description="flashcards"
+              onBrowse={() => router.push("/glossar")}
+              continueLabel={
+                lastPos.glossarLevel && lastPos.glossarKapitel
+                  ? `Continue ${lastPos.glossarLevel} K${lastPos.glossarKapitel}`
+                  : null
+              }
+              onContinue={() =>
+                router.push(
+                  lastPos.glossarModule
+                    ? `/glossar/b2/${lastPos.glossarKapitel}/${lastPos.glossarModule}/flashcards?start=${lastPos.glossarIndex}`
+                    : `/glossar/${lastPos.glossarLevel}/${lastPos.glossarKapitel}/flashcards?start=${lastPos.glossarIndex}`
+                )
+              }
+            />
+          </div>
+        </div>
       </div>
+
+      <style>{`
+        @media (min-width: 860px) {
+          .home-content {
+            max-width: 1040px !important;
+            padding-top: 110px !important;
+          }
+          .home-title {
+            font-size: 40px !important;
+          }
+          .home-modules {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            align-items: start;
+            column-gap: 24px;
+          }
+          .home-module {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+          }
+          .home-module-card {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+          }
+          .home-module-card .home-module-footer {
+            margin-top: auto;
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -188,6 +227,7 @@ function ModuleCard({
   return (
     <Pressable
       onPress={onBrowse}
+      className="home-module-card"
       style={({ pressed }) => ({
         borderWidth: 1,
         borderStyle: "solid",
@@ -200,7 +240,7 @@ function ModuleCard({
     >
       <span style={{ ...styles.moduleTitle, color: colors.text }}>{title}</span>
       <span style={{ ...styles.moduleDesc, color: colors.textMuted }}>{description}</span>
-      <div style={{ ...styles.moduleFooter, borderTopColor: colors.border }}>
+      <div className="home-module-footer" style={{ ...styles.moduleFooter, borderTopColor: colors.border }}>
         <Pressable
           onPress={onBrowse}
           style={({ pressed }) => ({

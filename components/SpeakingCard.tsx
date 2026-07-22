@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useTheme } from "../theme/ThemeContext";
 import { FONT_FAMILY, FONT_SIZES, FONT_WEIGHTS } from "../theme/typography";
 import { StatusBadge } from "./StatusBadge";
@@ -21,6 +21,17 @@ function partLabel(part: number): string {
 
 export function SpeakingCard({ item, flipped, onPress }: SpeakingCardProps): React.JSX.Element {
   const { colors } = useTheme();
+  const frontScrollRef = useRef<HTMLDivElement | null>(null);
+  const backScrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (frontScrollRef.current) {
+      frontScrollRef.current.scrollTop = 0;
+    }
+    if (backScrollRef.current) {
+      backScrollRef.current.scrollTop = 0;
+    }
+  }, [item, flipped]);
 
   return (
     <div
@@ -57,7 +68,7 @@ export function SpeakingCard({ item, flipped, onPress }: SpeakingCardProps): Rea
           }}
         >
           <StatusBadge label={partLabel(item.part)} />
-          <div className="speaking-card-scroll" style={styles.scrollContent}>
+          <div ref={frontScrollRef} className="speaking-card-scroll" style={styles.scrollContent}>
             <span style={{ ...styles.question, color: colors.text }}>{item.question}</span>
             {!!item.cueCardPoints && item.cueCardPoints.length > 0 && (
               <div style={styles.cuePoints}>
@@ -85,7 +96,7 @@ export function SpeakingCard({ item, flipped, onPress }: SpeakingCardProps): Rea
           }}
         >
           <StatusBadge label="EXAMPLE ANSWER" />
-          <div className="speaking-card-scroll" style={styles.scrollContent}>
+          <div ref={backScrollRef} className="speaking-card-scroll" style={styles.scrollContent}>
             <span style={{ ...styles.answer, color: colors.text }}>{item.answer}</span>
           </div>
         </div>
@@ -133,8 +144,8 @@ const styles: Record<string, React.CSSProperties> = {
     overflowY: "auto",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
-    paddingTop: 12,
+    justifyContent: "flex-start",
+    paddingTop: 16,
     paddingBottom: 12,
     paddingRight: 12,
   },

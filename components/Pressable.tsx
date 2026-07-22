@@ -13,6 +13,7 @@ export interface PressableProps {
   onPress?: () => void;
   disabled?: boolean;
   style?: StyleProp;
+  className?: string;
   children?: ChildrenProp;
   ariaLabel?: string;
 }
@@ -21,6 +22,7 @@ export function Pressable({
   onPress,
   disabled = false,
   style,
+  className,
   children,
   ariaLabel,
 }: PressableProps): React.JSX.Element {
@@ -37,6 +39,7 @@ export function Pressable({
       tabIndex={disabled ? -1 : 0}
       aria-disabled={disabled}
       aria-label={ariaLabel}
+      className={className}
       onClick={(event) => {
         event.stopPropagation();
         if (!disabled) {

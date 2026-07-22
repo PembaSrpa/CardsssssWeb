@@ -57,7 +57,7 @@ export function SpeakingCard({ item, flipped, onPress }: SpeakingCardProps): Rea
           }}
         >
           <StatusBadge label={partLabel(item.part)} />
-          <div style={styles.scrollContent}>
+          <div className="speaking-card-scroll" style={styles.scrollContent}>
             <span style={{ ...styles.question, color: colors.text }}>{item.question}</span>
             {!!item.cueCardPoints && item.cueCardPoints.length > 0 && (
               <div style={styles.cuePoints}>
@@ -85,11 +85,27 @@ export function SpeakingCard({ item, flipped, onPress }: SpeakingCardProps): Rea
           }}
         >
           <StatusBadge label="EXAMPLE ANSWER" />
-          <div style={styles.scrollContent}>
+          <div className="speaking-card-scroll" style={styles.scrollContent}>
             <span style={{ ...styles.answer, color: colors.text }}>{item.answer}</span>
           </div>
         </div>
       </div>
+      <style>{`
+        .speaking-card-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+        }
+        .speaking-card-scroll::-webkit-scrollbar {
+          width: 6px;
+        }
+        .speaking-card-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .speaking-card-scroll::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.25);
+          border-radius: 3px;
+        }
+      `}</style>
     </div>
   );
 }
@@ -117,9 +133,10 @@ const styles: Record<string, React.CSSProperties> = {
     overflowY: "auto",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     paddingTop: 12,
-    paddingBottom: 24,
+    paddingBottom: 12,
+    paddingRight: 12,
   },
   question: {
     fontFamily: FONT_FAMILY,

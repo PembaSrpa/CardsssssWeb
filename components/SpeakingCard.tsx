@@ -117,9 +117,9 @@ const styles: Record<string, React.CSSProperties> = {
     overflowY: "auto",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     paddingTop: 12,
-    paddingBottom: 12,
+    paddingBottom: 24,
   },
   question: {
     fontFamily: FONT_FAMILY,

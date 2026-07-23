@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useTheme } from "../theme/ThemeContext";
 import { FONT_FAMILY, FONT_SIZES, FONT_WEIGHTS } from "../theme/typography";
 import { StatusBadge } from "./StatusBadge";
@@ -14,6 +14,13 @@ interface FlashCardProps {
 
 export function FlashCard({ word, flipped, onPress }: FlashCardProps): React.JSX.Element {
   const { colors } = useTheme();
+  const backScrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (backScrollRef.current) {
+      backScrollRef.current.scrollTop = 0;
+    }
+  }, [word, flipped]);
 
   return (
     <div
@@ -65,23 +72,41 @@ export function FlashCard({ word, flipped, onPress }: FlashCardProps): React.JSX
           }}
         >
           <StatusBadge label={word.type} />
-          <span style={{ ...styles.meaning, color: colors.text }}>{word.meaning}</span>
-          <span style={{ ...styles.example, color: colors.textMuted }}>{word.example}</span>
+          <div ref={backScrollRef} className="flash-card-scroll" style={styles.scrollContent}>
+            <span style={{ ...styles.meaning, color: colors.text }}>{word.meaning}</span>
+            <span style={{ ...styles.example, color: colors.textMuted }}>{word.example}</span>
 
-          {word.synonyms.length > 0 && (
-            <div style={styles.row}>
-              <span style={{ ...styles.rowLabel, color: colors.textMuted }}>SYN</span>
-              <span style={{ ...styles.rowValue, color: colors.text }}>{word.synonyms.join(", ")}</span>
-            </div>
-          )}
-          {word.antonyms.length > 0 && (
-            <div style={styles.row}>
-              <span style={{ ...styles.rowLabel, color: colors.textMuted }}>ANT</span>
-              <span style={{ ...styles.rowValue, color: colors.text }}>{word.antonyms.join(", ")}</span>
-            </div>
-          )}
+            {word.synonyms.length > 0 && (
+              <div style={styles.row}>
+                <span style={{ ...styles.rowLabel, color: colors.textMuted }}>SYN</span>
+                <span style={{ ...styles.rowValue, color: colors.text }}>{word.synonyms.join(", ")}</span>
+              </div>
+            )}
+            {word.antonyms.length > 0 && (
+              <div style={styles.row}>
+                <span style={{ ...styles.rowLabel, color: colors.textMuted }}>ANT</span>
+                <span style={{ ...styles.rowValue, color: colors.text }}>{word.antonyms.join(", ")}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      <style>{`
+        .flash-card-scroll {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+        }
+        .flash-card-scroll::-webkit-scrollbar {
+          width: 6px;
+        }
+        .flash-card-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .flash-card-scroll::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.25);
+          border-radius: 3px;
+        }
+      `}</style>
     </div>
   );
 }
@@ -97,6 +122,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
+    overflow: "hidden",
   },
   faceAbsolute: {
     position: "absolute",
@@ -104,6 +130,14 @@ const styles: Record<string, React.CSSProperties> = {
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  scrollContent: {
+    flex: 1,
+    overflowY: "auto",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    paddingRight: 8,
   },
   word: {
     fontFamily: FONT_FAMILY,
